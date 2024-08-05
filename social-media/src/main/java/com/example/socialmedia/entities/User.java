@@ -1,8 +1,10 @@
 package com.example.socialmedia.entities;
 
+import com.example.socialmedia.dto.LoginRequest;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Set;
 import java.util.UUID;
@@ -28,4 +30,8 @@ public class User {
   )
 
   private Set<Role> roles;
+
+  public boolean isLoginCorrect(LoginRequest request, PasswordEncoder encoder) {
+    return encoder.matches(request.password(), this.password);
+  }
 }
