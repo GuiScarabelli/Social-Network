@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: social-media
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/social_network
+    username: aluno
+    password: aluno
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+jwt:
+  public:
+    key: classpath:id_rsa.pub
+  private:
+    key: classpath:id_rsa
+
