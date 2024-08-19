@@ -1,6 +1,5 @@
 package com.example.socialnetworkapi.infra.security;
 
-import com.example.socialnetworkapi.entity.User;
 import com.example.socialnetworkapi.repository.UserRepository;
 import com.example.socialnetworkapi.services.TokenService;
 import jakarta.servlet.FilterChain;
@@ -10,7 +9,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -29,7 +27,7 @@ public class SecurityFilter extends OncePerRequestFilter {
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
     var token = this.recoverToken(request);
-    if(token != null){
+    if(token != null) {
       var login = service.validateToken(token);
       var user = repository.findById(login);
       UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, user.get().getAuthorities());

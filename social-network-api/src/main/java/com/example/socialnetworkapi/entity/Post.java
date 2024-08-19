@@ -13,10 +13,13 @@ public class Post {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
     private String content;
+
     @CreationTimestamp
     private Instant creationTimestamp;
 }

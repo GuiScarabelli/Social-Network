@@ -9,19 +9,20 @@ import com.example.socialnetworkapi.repository.PostRepository;
 import com.example.socialnetworkapi.repository.UserRepository;
 import com.example.socialnetworkapi.services.TokenService;
 import jakarta.servlet.http.HttpServletRequest;
+import org.hibernate.annotations.NotFound;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.filter.AbstractRequestLoggingFilter;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
 
@@ -38,16 +39,36 @@ public class PostController {
 
   @Autowired
   private TokenService tokenService;
-  private Logger logger = LoggerFactory.getLogger(AbstractRequestLoggingFilter.class); // Adding a logger to API Gatewwawy
 
-  @PostMapping("/legal")
-  public ResponseEntity<Post> post(@RequestBody PostDto dto){
+  private String token;
+  @PostMapping()
+  public ResponseEntity<Post> post(@RequestBody PostDto dto, @RequestHeader("Authorization") String auth){
 
-//    logger.info("Token: "+ token);
-    var post = new Post();
-    post.setContent(dto.content());
+    this.token = tokenService.validateToken(auth.replace("Bearer ", ""));
+    var user = tokenService.recoverUserInfo(token);
 
-    return ResponseEntity.ok().body(repository.save(post));
+    if(user.isPresent()){
+      var post = new Post();
+      post.setContent(dto.content());
+      post.setUser(user.get());
+      return ResponseEntity.ok().body(repository.save(post));
+    }
+    return ResponseEntity.badRequest().build();
+  }
+  
+  @DeleteMapping("/{id}")
+  public ResponseEntity<Void> deletePost(@PathVariable String id, @RequestHeader("Authorization") String auth){
+
+    Optional<Post> post = Optional.ofNullable(repository.findById(id)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND)));
+
+
+
+    if(post.get().getUser().equals(token)){
+      repository.deleteById(id);
+      return ResponseEntity.ok().build();
+    }
+    return ResponseEntity.notFound().build();
   }
 
 }

@@ -27,10 +27,11 @@ public class User implements UserDetails {
   private String email;
   private Role role;
 
-  public User(String login, String password, Role role) {
+  public User(String login, String email, String password, Role role) {
     this.login = login;
     this.password = password;
     this.role = role;
+    this.email = email;
   }
 
   public User() {
