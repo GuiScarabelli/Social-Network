@@ -55,6 +55,6 @@ public class TokenService {
   }
 
   public Optional<User> recoverUserInfo(String token){
-    return userRepository.findById(token);
+    return userRepository.findById(validateToken(token.replace("Bearer ", "")));
   }
 }

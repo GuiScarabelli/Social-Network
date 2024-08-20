@@ -4,6 +4,7 @@ import com.example.socialnetworkapi.dto.auth.AuthenticationDto;
 import com.example.socialnetworkapi.dto.post.PostDto;
 import com.example.socialnetworkapi.entity.Post;
 import com.example.socialnetworkapi.entity.User;
+import com.example.socialnetworkapi.enums.Role;
 import com.example.socialnetworkapi.infra.security.SecurityFilter;
 import com.example.socialnetworkapi.repository.PostRepository;
 import com.example.socialnetworkapi.repository.UserRepository;
@@ -40,12 +41,10 @@ public class PostController {
   @Autowired
   private TokenService tokenService;
 
-  private String token;
   @PostMapping()
   public ResponseEntity<Post> post(@RequestBody PostDto dto, @RequestHeader("Authorization") String auth){
 
-    this.token = tokenService.validateToken(auth.replace("Bearer ", ""));
-    var user = tokenService.recoverUserInfo(token);
+    var user = tokenService.recoverUserInfo(auth);
 
     if(user.isPresent()){
       var post = new Post();
@@ -59,15 +58,20 @@ public class PostController {
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deletePost(@PathVariable String id, @RequestHeader("Authorization") String auth){
 
-    Optional<Post> post = Optional.ofNullable(repository.findById(id)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND)));
+    var user = tokenService.recoverUserInfo(auth)
+              .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
+    var post = repository.findById(id)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
+    var isAdmin = user.getRole().name().equals(Role.ADMIN.name());
+    System.out.println(isAdmin);
 
-    if(post.get().getUser().equals(token)){
-      repository.deleteById(id);
-      return ResponseEntity.ok().build();
-    }
+      if(isAdmin || post.getUser().getId().equals(user.getId())){
+        repository.deleteById(id);
+        return ResponseEntity.ok().build();
+      }
+
     return ResponseEntity.notFound().build();
   }
 
