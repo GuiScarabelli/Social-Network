@@ -21,7 +21,7 @@ public class FeedController {
 
   @GetMapping()
   public ResponseEntity<FeedDto> feed(@RequestParam(value = "page", defaultValue = "0") int page,
-                                      @RequestParam(value = "pageSize", defaultValue = "10") int pageSize){
+                                      @RequestParam(value = "pageSize", defaultValue = "0") int pageSize){
 
     var posts = repository.findAll(PageRequest
                       .of(page, pageSize, Sort.Direction.DESC, "creationTimestamp"))

@@ -8,6 +8,7 @@ import com.example.socialnetworkapi.enums.Role;
 import com.example.socialnetworkapi.infra.security.SecurityFilter;
 import com.example.socialnetworkapi.repository.PostRepository;
 import com.example.socialnetworkapi.repository.UserRepository;
+import com.example.socialnetworkapi.services.PostService;
 import com.example.socialnetworkapi.services.TokenService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.hibernate.annotations.NotFound;
@@ -33,46 +34,17 @@ import java.util.Optional;
 public class PostController {
 
   @Autowired
-  private PostRepository repository;
-
-  @Autowired
-  private UserRepository userRepository;
-
-  @Autowired
-  private TokenService tokenService;
+  private PostService service;
 
   @PostMapping()
   public ResponseEntity<Post> post(@RequestBody PostDto dto, @RequestHeader("Authorization") String auth){
-
-    var user = tokenService.recoverUserInfo(auth);
-
-    if(user.isPresent()){
-      var post = new Post();
-      post.setContent(dto.content());
-      post.setUser(user.get());
-      return ResponseEntity.ok().body(repository.save(post));
-    }
-    return ResponseEntity.badRequest().build();
+    return ResponseEntity.status(201).body(service.createPost(dto, auth));
   }
-  
+
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deletePost(@PathVariable String id, @RequestHeader("Authorization") String auth){
-
-    var user = tokenService.recoverUserInfo(auth)
-              .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-
-    var post = repository.findById(id)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-
-    var isAdmin = user.getRole().name().equals(Role.ADMIN.name());
-    System.out.println(isAdmin);
-
-      if(isAdmin || post.getUser().getId().equals(user.getId())){
-        repository.deleteById(id);
-        return ResponseEntity.ok().build();
-      }
-
-    return ResponseEntity.notFound().build();
-  }
-
+    service.deletePost(id, auth);
+    return ResponseEntity.noContent().build();
+    }
 }
+
