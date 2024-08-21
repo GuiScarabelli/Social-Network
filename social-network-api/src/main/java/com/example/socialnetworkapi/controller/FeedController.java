@@ -3,6 +3,7 @@ package com.example.socialnetworkapi.controller;
 import com.example.socialnetworkapi.dto.FeedDto;
 import com.example.socialnetworkapi.dto.FeedItemDto;
 import com.example.socialnetworkapi.repository.PostRepository;
+import com.example.socialnetworkapi.services.FeedService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -17,19 +18,16 @@ import org.springframework.web.bind.annotation.RestController;
 public class FeedController {
 
   @Autowired
-  PostRepository repository;
+  private PostRepository postRepository;
+
+  @Autowired
+  private FeedService service;
 
   @GetMapping()
   public ResponseEntity<FeedDto> feed(@RequestParam(value = "page", defaultValue = "0") int page,
                                       @RequestParam(value = "pageSize", defaultValue = "0") int pageSize){
 
-    var posts = repository.findAll(PageRequest
-                      .of(page, pageSize, Sort.Direction.DESC, "creationTimestamp"))
-            .map(post -> new FeedItemDto(post.getId(),
-                                          post.getContent(),
-                                            post.getUser().getUsername()));
-
-    return ResponseEntity.ok(new FeedDto(posts.getContent(), page, pageSize, posts.getTotalPages(), posts.getTotalElements()));
+    return ResponseEntity.ok().body(service.getAllPosts(page, pageSize));
   }
 
 

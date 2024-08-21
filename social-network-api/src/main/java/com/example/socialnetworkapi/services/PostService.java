@@ -57,6 +57,7 @@ public class PostService {
      if(!isAdmin || !post.getUser().getId().equals(user.getId())){
        throw new ResponseStatusException(HttpStatusCode.valueOf(401));
      }
+
      repository.deleteById(id);
   }
 }
