@@ -1,12 +1,9 @@
 package com.example.socialnetworkapi.controller;
 
 import com.example.socialnetworkapi.dto.FeedDto;
-import com.example.socialnetworkapi.dto.FeedItemDto;
 import com.example.socialnetworkapi.repository.PostRepository;
 import com.example.socialnetworkapi.services.FeedService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,7 +26,5 @@ public class FeedController {
 
     return ResponseEntity.ok().body(service.getAllPosts(page, pageSize));
   }
-
-
 }
 

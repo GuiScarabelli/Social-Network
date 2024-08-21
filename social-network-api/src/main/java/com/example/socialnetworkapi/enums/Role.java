@@ -1,8 +1,5 @@
 package com.example.socialnetworkapi.enums;
 
-import lombok.Getter;
-
-
 public enum Role {
   ADMIN("admin"),
   USER("user");
