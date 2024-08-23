@@ -16,14 +16,9 @@ public class ChatMessage {
   @Id
   @UuidGenerator
   private String Id;
-
   private String chatId;
-
   private String recipientId;
-
   private String senderId;
-
   private String content;
-
   private Date timestamp;
 }
