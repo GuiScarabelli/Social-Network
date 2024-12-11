@@ -10,8 +10,10 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
-
 api:
   security:
     token:
       secret: ${JWT_SECRET:my-secret-key}
+springdoc:
+  swagger-ui:
+    path: "/docs"
